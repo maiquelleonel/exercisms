@@ -10,7 +10,7 @@ class Luhn:
     def _clean_card(self):
         return re.sub(self.regex, "", self.card_number).replace(" ", "")
 
-    def _doesnt_have_valid_lenth(self):
+    def _doesnt_have_valid_length(self):
         return len(self.card_number) <= 1
 
     def _doesnt_have_valid_chars(self):
@@ -22,14 +22,14 @@ class Luhn:
         if len(positions) == 0:
             positions.append(0)
 
-        for_calculate = [int(char) for char in card_number]
+        for_calc = [int(char) for char in card_number]
         for position in positions:
-            product = for_calculate[position] * 2
-            for_calculate[position] = product if product < 9 else product - 9
+            product = for_calc[position] * 2
+            for_calc[position] = product if product < 9 else product - 9
 
-        return sum(for_calculate) % 10 == 0
+        return sum(for_calc) % 10 == 0
 
     def valid(self):
-        if self._doesnt_have_valid_lenth() or self._doesnt_have_valid_chars():
+        if self._doesnt_have_valid_length() or self._doesnt_have_valid_chars():
             return False
         return self._calculate()
