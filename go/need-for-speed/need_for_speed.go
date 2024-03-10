@@ -40,7 +40,7 @@ func Drive(car Car) Car {
 
 // CanFinish checks if a car is able to finish a certain track.
 func CanFinish(car Car, track Track) bool {
-	totalDistance := track.distance - car.distance
-	energyCost := (totalDistance / car.speed) * car.batteryDrain
+	distanceToRun := track.distance - car.distance
+	energyCost := (distanceToRun / car.speed) * car.batteryDrain
 	return (car.battery - energyCost) > 0
 }
