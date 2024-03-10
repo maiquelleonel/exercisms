@@ -1,33 +1,46 @@
-from datetime import *
-from dateutil.relativedelta import *
+import datetime
+import calendar
+
 
 WEEKDAYS = {
-    "Monday": MO,
-    "Tuesday": TU,
-    "Wednesday": WE,
-    "Thursday": TH,
-    "Friday": FR,
-    "Saturday": SA,
-    "Sunday": SU,
+    "Monday": calendar.MONDAY,
+    "Tuesday": calendar.TUESDAY,
+    "Wednesday": calendar.WEDNESDAY,
+    "Thursday": calendar.THURSDAY,
+    "Friday": calendar.FRIDAY,
+    "Saturday": calendar.SATURDAY,
+    "Sunday": calendar.SUNDAY,
 }
 
-ORDS = {"last": -1, "1st": 1, "2nd": 2, "3rd": 3, "4th": 4, "5th": 5}
+ORDS = {"1st": 0, "2nd": 7, "3rd": 14, "4th": 21, "5th": 28, "last": None}
 
 
 class MeetupDayException(Exception):
     ...
 
 
+
 def meetup(year, month, week, day_of_week):
-    _date = date(year, month, 1)
-    if week == "teenth":
-        _date += relativedelta(day=13, weekday=WEEKDAYS[day_of_week])
-    elif week == "last":
-        _date += relativedelta(day=31, weekday=WEEKDAYS[day_of_week](ORDS[week]))
-    else:
-        _date += relativedelta(weekday=WEEKDAYS[day_of_week](ORDS[week]))
-
-    if _date.month > month:
-        raise MeetupDayException("Month doesn't have this week day")
-
-    return _date
+    _, num_days = calendar.monthrange(year, month)
+    if week in list(ORDS.keys()):
+        for day in range(1, 8):
+            weekday = calendar.weekday(year, month, day)
+            if weekday == WEEKDAYS[day_of_week]:
+                if week == "last":
+                    is_5th_the_last_week = day + ORDS["5th"] <= num_days
+                    return datetime.date(
+                        year, 
+                        month, 
+                        day + ORDS["5th" if is_5th_the_last_week else "4th"]
+                    )
+                else:
+                    if day + ORDS[week] <= num_days:
+                        return datetime.date(year, month, day + ORDS[week])
+    
+    elif week == "teenth":
+        for day in range(13, 20):
+            weekday = calendar.weekday(year, month, day)
+            if weekday == WEEKDAYS[day_of_week]:
+                return datetime.date(year, month, day)
+     
+    raise MeetupDayException("That day does not exist.")

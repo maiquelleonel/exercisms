@@ -16,7 +16,7 @@ The descriptors you are expected to parse are:
 first, second, third, fourth, fifth, last, monteenth, tuesteenth, wednesteenth,
 thursteenth, friteenth, saturteenth, sunteenth
 
-Note that "monteenth", "tuesteenth", etc are all made up words. There was a
+Note that "monteenth", "tuesteenth", etc are all made up wORDS. There was a
 meetup whose members realized that there are exactly 7 numbered days in a month
 that end in '-teenth'. Therefore, one is guaranteed that each day of the week
 (Monday, Tuesday, ...) will have exactly one date that is named with '-teenth'
