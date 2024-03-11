@@ -16,7 +16,8 @@ ORDS = {"1st": 0, "2nd": 7, "3rd": 14, "4th": 21, "5th": 28, "last": None}
 
 
 class MeetupDayException(Exception):
-    ...
+    def __init__(self, message):
+        self.message = message
 
 
 
