@@ -12,7 +12,7 @@ WEEKDAYS = {
     "Sunday": calendar.SUNDAY,
 }
 
-ORDS = {"1st": 0, "2nd": 7, "3rd": 14, "4th": 21, "5th": 28, "last": None}
+ORDS = {"first": 0, "second": 7, "third": 14, "fourth": 21, "fifth": 28, "last": None}
 
 
 class MeetupDayException(Exception):
@@ -28,11 +28,11 @@ def meetup(year, month, week, day_of_week):
             weekday = calendar.weekday(year, month, day)
             if weekday == WEEKDAYS[day_of_week]:
                 if week == "last":
-                    is_5th_the_last_week = day + ORDS["5th"] <= num_days
+                    is_5th_the_last_week = day + ORDS["fifth"] <= num_days
                     return datetime.date(
                         year, 
                         month, 
-                        day + ORDS["5th" if is_5th_the_last_week else "4th"]
+                        day + ORDS["fifth" if is_5th_the_last_week else "fourth"]
                     )
                 else:
                     if day + ORDS[week] <= num_days:
