@@ -10,7 +10,7 @@ func InterestRate(balance float64) float32 {
 		interestRate = 0.5
 	case balance >= 1000 && balance < 5000:
 		interestRate = 1.621
-	case balance >= 5000:
+	default:
 		interestRate = 2.475
 	}
 	return interestRate
@@ -29,10 +29,9 @@ func AnnualBalanceUpdate(balance float64) float64 {
 // YearsBeforeDesiredBalance calculates the minimum number of years required to reach the desired balance.
 func YearsBeforeDesiredBalance(balance, targetBalance float64) int {
 	years := 0
-	if targetBalance > balance {
-		for i := balance; i < targetBalance; i += Interest(i) {
-			years++
-		}
+	for balance < targetBalance {
+		balance += Interest(balance)
+		years++
 	}
 	return years
 }
