@@ -24,7 +24,7 @@ func (car *Car) DisplayBattery() string {
 
 // TODO: define the 'CanFinish(trackDistance int) bool' method
 func (car *Car) CanFinish(trackDistance int) bool {
-	return (car.battery*car.speed)/car.batteryDrain >= trackDistance-car.distance
+	return (car.battery*car.batteryDrain)/car.speed >= trackDistance-car.distance
 }
 
 // Your first steps could be to read through the tasks, and create
