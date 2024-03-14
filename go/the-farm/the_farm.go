@@ -34,11 +34,11 @@ func ValidateInputAndDivideFood(calc FodderCalculator, cows int) (float64, error
 // TODO: define the 'ValidateNumberOfCows' function
 func ValidateNumberOfCows(cows int) error {
 	if cows < 0 {
-		return ThrowInvalidCowsError(cows, "there are no negative cows")
+		return &InvalidCowsError{cows, "there are no negative cows"}
 	}
 
 	if cows == 0 {
-		return ThrowInvalidCowsError(cows, "no cows don't need food")
+		return &InvalidCowsError{cows, "no cows don't need food"}
 	}
 	return nil
 }
@@ -50,10 +50,6 @@ type InvalidCowsError struct {
 
 func (e *InvalidCowsError) Error() string {
 	return fmt.Sprintf("%d cows are invalid: %s", e.cows, e.msg)
-}
-
-func ThrowInvalidCowsError(cows int, msg string) *InvalidCowsError {
-	return &InvalidCowsError{cows, msg}
 }
 
 // Your first steps could be to read through the tasks, and create
