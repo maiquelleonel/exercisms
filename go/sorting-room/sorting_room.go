@@ -2,7 +2,6 @@ package sorting
 
 import (
 	"fmt"
-	"regexp"
 	"strconv"
 )
 
@@ -51,37 +50,17 @@ func DescribeFancyNumberBox(fnb FancyNumberBox) string {
 		float64(ExtractFancyNumber(fnb)))
 }
 
-type NewNumberBox struct {
-	n int
-}
-
-func (i NewNumberBox) Number() int {
-	return i.n
-}
-
-func onlyDigits(s string) string {
-	re := regexp.MustCompile(`[^\d\.?\d?]`)
-	return re.ReplaceAllLiteralString(s, "")
-}
-
 // DescribeAnything should return a string describing whatever it contains.
 func DescribeAnything(i interface{}) string {
-	data := onlyDigits(fmt.Sprintf("%v", i))
-	switch i.(type) {
+	switch v := i.(type) {
 	case int:
-		if num, err := strconv.Atoi(data); err == nil {
-			return DescribeNumber(float64(num))
-		}
+		return DescribeNumber(float64(v))
 	case float64:
-		if num, err := strconv.ParseFloat(data, 64); err == nil {
-			return DescribeNumber(num)
-		}
+		return DescribeNumber(v)
 	case NumberBox:
-		if num, e := strconv.Atoi(data); e == nil {
-			return DescribeNumberBox(NewNumberBox{n: int(num)})
-		}
+		return DescribeNumberBox(v)
 	case FancyNumberBox:
-		return DescribeFancyNumberBox(FancyNumber{data})
+		return DescribeFancyNumberBox(v)
 	}
 	return "Return to sender"
 }
