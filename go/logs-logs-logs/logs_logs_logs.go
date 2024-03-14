@@ -16,15 +16,15 @@ func Application(log string) string {
 	s := strings.IndexRune(log, search)
 	w := strings.IndexRune(log, weather)
 
-	if e == 0 || e > min(s, w) && 0 > max(s, w) {
+	if e == 0 || e > s && e > w && 0 > s && 0 > w {
 		return "recommendation"
 	}
 
-	if s == 0 || s > min(e, w) && 0 > max(e, w) {
+	if s == 0 || s > e && s > w && 0 > e && 0 > w {
 		return "search"
 	}
 
-	if w == 0 || w > min(s, e) && 0 > max(s, e) {
+	if w == 0 || w > s && w > e && 0 > s && 0 > e {
 		return "weather"
 	}
 
