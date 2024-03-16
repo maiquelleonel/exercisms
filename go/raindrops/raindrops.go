@@ -3,9 +3,8 @@ package raindrops
 import "fmt"
 
 func Convert(number int) string {
-
-	var sounds = []string{"Pling", "Plang", "Plong"}
 	var ret string
+	var sounds = []string{"Pling", "Plang", "Plong"}
 	for i, divisor := range []int{3, 5, 7} {
 		if number%divisor == 0 {
 			ret += sounds[i]
@@ -17,5 +16,4 @@ func Convert(number int) string {
 	}
 
 	return fmt.Sprintf("%v", number)
-
 }

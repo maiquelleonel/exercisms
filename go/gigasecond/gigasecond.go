@@ -12,5 +12,5 @@ import (
 
 // AddGigasecond should have a comment documenting it.
 func AddGigasecond(t time.Time) time.Time {
-	return t.Add(time.Second * time.Duration(1e9))
+	return t.Add(time.Second * 1e9)
 }
