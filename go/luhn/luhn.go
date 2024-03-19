@@ -16,7 +16,6 @@ func Valid(id string) bool {
 	}
 
 	return calculate(id)
-
 }
 
 func onlyNumbers(id string) []string {
