@@ -1,12 +1,12 @@
 package resistorcolor
 
-import (
-	"slices"
-)
+import "slices"
 
-// Colors returns the list of all colors.
+// Colors should return the list of all colors.
+var colors = []string{"black", "brown", "red", "orange", "yellow", "green", "blue", "violet", "grey", "white"}
+
 func Colors() []string {
-	return []string{"black", "brown", "red", "orange", "yellow", "green", "blue", "violet", "grey", "white"}
+	return colors
 }
 
 // ColorCode returns the resistance value of the given color.
