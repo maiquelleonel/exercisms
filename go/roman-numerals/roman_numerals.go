@@ -2,7 +2,6 @@ package romannumerals
 
 import (
 	"errors"
-	"strings"
 )
 
 func ToRomanNumeral(input int) (string, error) {
@@ -10,19 +9,16 @@ func ToRomanNumeral(input int) (string, error) {
 		return "", errors.New("Invalid")
 	}
 
-	ret := strings.Repeat("I", input)
-	ret = strings.ReplaceAll(ret, "IIIII", "V")
-	ret = strings.ReplaceAll(ret, "IIII", "IV")
-	ret = strings.ReplaceAll(ret, "VV", "X")
-	ret = strings.ReplaceAll(ret, "VIV", "IX")
-	ret = strings.ReplaceAll(ret, "XXXXX", "L")
-	ret = strings.ReplaceAll(ret, "XXXX", "XL")
-	ret = strings.ReplaceAll(ret, "LL", "C")
-	ret = strings.ReplaceAll(ret, "LXL", "XC")
-	ret = strings.ReplaceAll(ret, "CCCCC", "D")
-	ret = strings.ReplaceAll(ret, "CCCC", "CD")
-	ret = strings.ReplaceAll(ret, "DD", "M")
-	ret = strings.ReplaceAll(ret, "DCD", "CM")
+	roman_numbers := []int{1000, 900, 500, 400, 100, 90, 50, 40, 10, 9, 5, 4, 1}
+	roman_letters := []string{"M", "CM", "D", "CD", "C", "XC", "L", "XL", "X", "IX", "V", "IV", "I"}
+	current := input
+	ret := ""
+	for i, num := range roman_numbers {
+		for current >= num {
+			ret += roman_letters[i]
+			current -= num
+		}
+	}
 
 	return ret, nil
 }
