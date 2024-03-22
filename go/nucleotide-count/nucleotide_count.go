@@ -23,7 +23,7 @@ func (d DNA) Counts() (Histogram, error) {
 	var h Histogram = map[rune]int{'A': 0, 'C': 0, 'G': 0, 'T': 0}
 	re := regexp.MustCompile(`[^ACGT]`)
 	if re.FindAllString(string(d), -1) != nil {
-		return h, errors.New("INVALID")
+		return nil, errors.New("INVALID")
 	}
 
 	for letter := range h {
