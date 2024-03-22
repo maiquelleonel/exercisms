@@ -14,7 +14,7 @@ var planetYears = map[Planet]float64{
 }
 
 func Age(seconds float64, planet Planet) float64 {
-	if planetYears[planet] == 0 {
+	if _, exists := planetYears[planet]; !exists {
 		return -1
 	}
 	return seconds / (planetYears[planet] * 31557600)
