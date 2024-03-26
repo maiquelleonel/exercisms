@@ -1,9 +1,6 @@
 package resistorcolorduo
 
-import (
-	"slices"
-	"strconv"
-)
+import "slices"
 
 // Value should return the resistance value of a resistor with a given colors.
 func Value(colors []string) int {
@@ -20,11 +17,6 @@ func Value(colors []string) int {
 		"white",
 	}
 
-	var totalValue string
-
-	for _, color := range colors[:2] {
-		totalValue += strconv.Itoa(slices.Index(encodedColors, color))
-	}
-	intval, _ := strconv.Atoi(totalValue)
-	return intval
+	return slices.Index(encodedColors, colors[0])*10 +
+		slices.Index(encodedColors, colors[1])
 }
