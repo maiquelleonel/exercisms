@@ -6,35 +6,32 @@
 package triangle
 
 // Notice KindFromSides() returns this type. Pick a suitable data type.
-type Kind string
+type Kind int
 
 const (
 	// Pick values for the following identifiers used by the test program.
-	NaT = "NaT" // not a triangle
-	Equ = "Equ" // equilateral
-	Iso = "Iso" // isosceles
-	Sca = "Sca" // scalene
+	NaT Kind = iota // not a triangle
+	Equ             // equilateral
+	Iso             // isosceles
+	Sca             // scalene
 )
 
 // KindFromSides should have a comment documenting it.
 func KindFromSides(a, b, c float64) Kind {
 
-	if (a <= 0 || b <= 0 || c <= 0) || (a+b < c || b+c < a || a+c < b) {
+	if (a <= 0 || b <= 0 || c <= 0) ||
+		(a+b < c || b+c < a || a+c < b) {
 		return Kind(NaT)
 	}
 
-	if a == b && a == c || b == c && b == a || c == a && c == b {
+	if a == b && a == c {
 		return Kind(Equ)
 	}
 
-	if a == c && a != b || b == a && b != c || c == b && c != a {
+	if a == b || c == b || c == a {
 		return Kind(Iso)
 	}
 
-	if a*2 > b+c || b*2 > a+c || c*2 > a+b {
-		return Kind(Sca)
-	}
-
-	return Kind(NaT)
+	return Kind(Sca)
 
 }
