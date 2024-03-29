@@ -40,19 +40,14 @@ func findSeries(numbers []string, size int) [][]int64 {
 	var number int64
 	var slot []int64
 	var ret [][]int64
-	for i := 0; i < len(numbers); i++ {
+	for i := 0; i <= len(numbers)-size; i++ {
 		for j := 0; j < size; j++ {
-			number = 0
-			if i+j < len(numbers) {
-				number, _ = strconv.ParseInt(numbers[i+j], 10, 64)
-			}
+			number, _ = strconv.ParseInt(numbers[i+j], 10, 64)
 			slot = append(slot, number)
 		}
-		if len(ret) < len(numbers)-1 {
-			slot = append(slot, calcProduct(slot))
-			ret = append(ret, slot)
-			slot = make([]int64, 0)
-		}
+		slot = append(slot, calcProduct(slot))
+		ret = append(ret, slot)
+		slot = make([]int64, 0)
 	}
 	return ret
 }
