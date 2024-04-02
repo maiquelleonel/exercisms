@@ -20,15 +20,7 @@ func Number(phoneNumber string) (string, error) {
 			return "", errors.New("invalid country code")
 		}
 
-		if onlyNumbers[1] < '2' {
-			return "", errors.New("invalid area code")
-		}
-
-		if onlyNumbers[4] < '2' {
-			return "", errors.New("invalid exchange code")
-		}
-
-		return onlyNumbers[1:], nil
+		onlyNumbers = onlyNumbers[1:]
 	}
 
 	if onlyNumbers[0] < '2' {
