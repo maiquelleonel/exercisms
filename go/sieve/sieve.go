@@ -1,10 +1,9 @@
 package sieve
 
 func Sieve(limit int) []int {
-	var ret []int
 
 	if limit < 2 {
-		return ret
+		return []int{}
 	}
 
 	primes := make([]bool, limit+1)
@@ -16,13 +15,14 @@ func Sieve(limit int) []int {
 	var prime int = 2
 	for prime*prime < limit {
 		if primes[prime] {
-			for i := prime * prime; i < limit+1; i += prime {
+			for i := prime * prime; i <= limit; i += prime {
 				primes[i] = false
 			}
 		}
 		prime += 1
 	}
 
+	var ret []int
 	for i, prime := range primes {
 		if i < 2 {
 			continue
