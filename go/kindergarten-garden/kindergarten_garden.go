@@ -40,6 +40,7 @@ func NewGarden(diagram string, children []string) (*Garden, error) {
 	}
 
 	for l, line := range lines {
+		//lint:ignore S1003 ignore this
 		if strings.IndexAny(line, "VRGC") == -1 {
 			return &Garden{}, errors.New("invalid cup code")
 		}
