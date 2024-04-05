@@ -1,6 +1,7 @@
 package tournament
 
 import (
+	"bufio"
 	"cmp"
 	"errors"
 	"fmt"
@@ -16,30 +17,26 @@ type Match struct {
 }
 
 type Result struct {
-	team    string
-	matches int
-	wins    int
-	draws   int
-	losses  int
-	points  int
+	team                                 string
+	matches, wins, draws, losses, points int
 }
 
-type ResultTable map[string]Result
+type ResultsTable map[string]*Result
 
-func setResult(match Match, ResultTable ResultTable) (ok bool) {
+func (rt ResultsTable) setResult(match Match) (ok bool) {
 
-	home, away := Result{team: match.home}, Result{team: match.away}
+	home, away := &Result{team: match.home}, &Result{team: match.away}
 
-	if _, ok := ResultTable[match.home]; !ok {
-		ResultTable[match.home] = home
+	if rt[match.home] == nil {
+		rt[match.home] = home
 	}
 
-	if _, ok := ResultTable[match.away]; !ok {
-		ResultTable[match.away] = away
+	if rt[match.away] == nil {
+		rt[match.away] = away
 	}
 
-	home = ResultTable[match.home]
-	away = ResultTable[match.away]
+	home = rt[match.home]
+	away = rt[match.away]
 
 	home.matches += 1
 	away.matches += 1
@@ -59,16 +56,16 @@ func setResult(match Match, ResultTable ResultTable) (ok bool) {
 		away.points += 3
 	}
 
-	ResultTable[home.team] = home
-	ResultTable[away.team] = away
+	rt[home.team] = home
+	rt[away.team] = away
 
 	return true
 }
 
-func sort(ResultTable ResultTable) []Result {
+func (r *ResultsTable) sort() []Result {
 	var resultSorted []Result
-	for _, team := range ResultTable {
-		resultSorted = append(resultSorted, team)
+	for _, team := range *r {
+		resultSorted = append(resultSorted, *team)
 	}
 
 	slices.SortStableFunc(resultSorted, func(a, b Result) int {
@@ -83,20 +80,12 @@ func sort(ResultTable ResultTable) []Result {
 }
 
 func Tally(reader io.Reader, writer io.Writer) error {
-	var ResultTable ResultTable = make(ResultTable, 0)
-	var data string
-	if b, err := io.ReadAll(reader); err == nil {
-		data = string(b)
-	}
+	ResultsTable := &ResultsTable{}
+	scanner := bufio.NewScanner(reader)
 
-	lines := strings.Split(data, "\n")
-	for _, line := range lines {
-		line = strings.TrimSpace(line)
-		if len(line) < 2 {
-			continue
-		}
-
-		if line[0] == '#' {
+	for scanner.Scan() {
+		line := scanner.Text()
+		if len(line) == 0 || strings.HasPrefix(line, "#") {
 			continue
 		}
 
@@ -106,7 +95,7 @@ func Tally(reader io.Reader, writer io.Writer) error {
 			return errors.New("invalid match")
 		}
 
-		Match := Match{
+		Match := &Match{
 			home:   strings.TrimSpace(match[0]),
 			away:   strings.TrimSpace(match[1]),
 			result: strings.TrimSpace(match[2]),
@@ -116,16 +105,15 @@ func Tally(reader io.Reader, writer io.Writer) error {
 			return errors.New("invalid result")
 		}
 
-		setResult(Match, ResultTable)
+		ResultsTable.setResult(*Match)
 
 	}
 
-	io.WriteString(writer, "Team                           | MP |  W |  D |  L |  P\n")
-	for _, result := range sort(ResultTable) {
-		result.team += strings.Repeat(" ", 31-len(result.team))
-		line := fmt.Sprintf("%v|  %v |  %v |  %v |  %v |  %v\n",
-			result.team, result.matches, result.wins, result.draws, result.losses, result.points)
-		io.WriteString(writer, line)
+	io.WriteString(writer, fmt.Sprintf("%-30s | MP |  W |  D |  L |  P\n", "Team"))
+	for _, result := range ResultsTable.sort() {
+		io.WriteString(writer,
+			fmt.Sprintf("%-30s |  %v |  %v |  %v |  %v |  %v\n",
+				result.team, result.matches, result.wins, result.draws, result.losses, result.points))
 	}
 
 	return nil
