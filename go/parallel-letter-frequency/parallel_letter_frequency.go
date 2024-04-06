@@ -26,6 +26,7 @@ func ConcurrentFrequency(texts []string) FreqMap {
 	for _, text := range texts {
 		go concCall(text, Frequency, &wg, c)
 	}
+
 	go func() {
 		wg.Wait()
 		close(c)
