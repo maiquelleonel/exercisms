@@ -2,11 +2,11 @@ package tournament
 
 import (
 	"bufio"
-	"cmp"
 	"errors"
 	"fmt"
 	"io"
 	"slices"
+	"sort"
 	"strings"
 )
 
@@ -22,6 +22,7 @@ type Result struct {
 }
 
 type ResultsTable map[string]*Result
+type TeamResult []Result
 
 func (rt ResultsTable) setResult(match Match) (ok bool) {
 
@@ -62,21 +63,33 @@ func (rt ResultsTable) setResult(match Match) (ok bool) {
 	return true
 }
 
-func (r *ResultsTable) sort() []Result {
-	var resultSorted []Result
+func (r *ResultsTable) sort() TeamResult {
+	var resultSorted TeamResult
 	for _, team := range *r {
 		resultSorted = append(resultSorted, *team)
 	}
-
-	slices.SortStableFunc(resultSorted, func(a, b Result) int {
-		// inverse order                      // 0 is equal
-		if n := cmp.Compare(b.points, a.points); n != 0 {
-			return n
-		}
-		return cmp.Compare(a.team, b.team)
-	})
-
+	sort.Sort(resultSorted)
 	return resultSorted
+}
+
+func (s TeamResult) Len() int {
+	return len(s)
+}
+
+func (s TeamResult) Swap(a, b int) {
+	s[a], s[b] = s[b], s[a]
+}
+
+func (s TeamResult) Less(a, b int) bool {
+	if s[a].points != s[b].points {
+		return s[a].points > s[b].points
+	}
+
+	if s[a].wins != s[b].wins {
+		return s[a].wins > s[b].wins
+	}
+
+	return s[a].team < s[b].team
 }
 
 func Tally(reader io.Reader, writer io.Writer) error {
