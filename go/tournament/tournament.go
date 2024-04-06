@@ -76,20 +76,18 @@ func (s TeamResult) Len() int {
 	return len(s)
 }
 
-func (s TeamResult) Swap(a, b int) {
-	s[a], s[b] = s[b], s[a]
+func (s TeamResult) Swap(current, next int) {
+	s[current], s[next] = s[next], s[current]
 }
 
-func (s TeamResult) Less(a, b int) bool {
-	if s[a].points != s[b].points {
-		return s[a].points > s[b].points
+func (s TeamResult) Less(current, next int) bool {
+	if s[current].points != s[next].points {
+		return s[current].points > s[next].points
 	}
-
-	if s[a].wins != s[b].wins {
-		return s[a].wins > s[b].wins
+	if s[current].wins != s[next].wins {
+		return s[current].wins > s[next].wins
 	}
-
-	return s[a].team < s[b].team
+	return s[current].team < s[next].team
 }
 
 func Tally(reader io.Reader, writer io.Writer) error {
