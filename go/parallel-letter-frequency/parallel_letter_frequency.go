@@ -32,13 +32,13 @@ func ConcurrentFrequency(texts []string) FreqMap {
 		close(c)
 	}()
 
-	var F = make(FreqMap)
+	var Fm = make(FreqMap)
 	for freq := range c {
 		for r, total := range freq {
 			F[r] += total
 		}
 	}
-	return F
+	return Fm
 
 }
 
