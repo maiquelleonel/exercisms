@@ -2,6 +2,7 @@ package stringset
 
 import (
 	"fmt"
+	"reflect"
 	"slices"
 	"strings"
 )
@@ -19,12 +20,12 @@ type Set struct {
 }
 
 func New() Set {
-	return Set{data: []string{}}
+	return Set{[]string{}}
 }
 
 func NewFromSlice(l []string) Set {
 	slices.Sort(l)
-	return Set{data: slices.Compact(l)}
+	return Set{slices.Compact(l)}
 }
 
 func (s Set) String() string {
@@ -42,49 +43,32 @@ func (s Set) Has(elem string) bool {
 	return slices.Index(s.data, elem) != -1
 }
 
+func (s Set) Len() int {
+	return len(s.data)
+}
+
 func (s *Set) Add(elem string) {
 	if s.IsEmpty() || !s.Has(elem) {
 		s.data = append(s.data, elem)
+		slices.Sort(s.data)
 	}
 }
 
 func Subset(s1, s2 Set) bool {
-	if len(s1.data) < len(s2.data) {
-		return true
-	} else if len(s1.data) > len(s2.data) {
-		return false
-	} else {
-		for _, el := range s2.data {
-			if slices.Index(s1.data, el) < 0 {
-				return false
-			}
-		}
-		return true
-	}
+	return Equal(s1, Intersection(s1, s2))
 }
+
 func Disjoint(s1, s2 Set) bool {
-	if len(s1.data) < len(s2.data) {
-		return true
-	}
-	for _, el := range s2.data {
-		if slices.Index(s1.data, el) >= 0 {
-			return false
-		}
-	}
-	return true
+	return Intersection(s1, s2).Len() == 0
+
 }
 
 func Equal(s1, s2 Set) bool {
-	for _, el := range s2.data {
-		if slices.Index(s1.data, el) < 0 {
-			return false
-		}
-	}
-	return len(s1.data) == len(s2.data)
+	return reflect.DeepEqual(s1, s2)
 }
 
 func Intersection(s1, s2 Set) Set {
-	var inter Set
+	inter := New()
 	for _, el := range s2.data {
 		if s1.Has(el) {
 			inter.Add(el)
@@ -94,26 +78,15 @@ func Intersection(s1, s2 Set) Set {
 }
 
 func Difference(s1, s2 Set) Set {
-	var inter Set
-	if s1.IsEmpty() {
-		return inter
-	}
-
-	if s2.IsEmpty() {
-		return s1
-	}
-
+	inter := New()
 	for _, el := range s1.data {
 		if !s2.Has(el) {
 			inter.Add(el)
 		}
 	}
-
 	return inter
-
 }
 
 func Union(s1 Set, s2 Set) Set {
-	s := slices.Concat(s1.data, s2.data)
-	return NewFromSlice(s)
+	return NewFromSlice(append(s1.data, s2.data...))
 }
