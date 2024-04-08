@@ -3,6 +3,7 @@ package resistorcolortrio
 import (
 	"fmt"
 	"strconv"
+	"strings"
 )
 
 var COLORS = map[string]int{
@@ -18,35 +19,40 @@ var COLORS = map[string]int{
 	"white":  9,
 }
 
-var UNIT = map[int]string{
-	0: "",
-	1: "",
-	2: "",
-	3: "kilo",
-	4: "kilo",
-	5: "kilo",
-	6: "mega",
-	7: "mega",
-	8: "mega",
-	9: "giga",
+var UNITS = []string{
+	"giga",
+	"mega",
+	"kilo",
+}
+var BASES = []int{
+	1_000_000_000,
+	1_000_000,
+	1_000,
 }
 
-// Label describes the resistance value given the colors of a resistor.
+// Label describes the resistance value given the c of a resistor.
 // The label is a string with a resistance value with an unit appended
 // (e.g. "33 ohms", "470 kiloohms").
 func Label(c []string) string {
-	strNumber := fmt.Sprintf("%v%v", COLORS[c[0]], COLORS[c[1]])
+	strNumber := fmt.Sprintf(
+		"%d%s",
+		COLORS[c[0]]*10+COLORS[c[1]],
+		strings.Repeat("0", COLORS[c[2]]),
+	)
+
 	intVal, _ := strconv.Atoi(strNumber)
-	switch c[2] {
-	case "brown", "yellow", "green", "violet", "grey":
-		strNumber += "0"
-		intVal *= 10
-	case "red":
-		if c[1] == "black" {
-			intVal /= 10
-			COLORS[c[2]]++
+
+	scale := ""
+
+	if intVal > 0 {
+		for i, unit := range UNITS {
+			if intVal%BASES[i] == 0 {
+				intVal /= BASES[i]
+				scale = unit
+				break
+			}
 		}
 	}
 
-	return fmt.Sprintf("%s %sohms", strconv.Itoa(intVal), UNIT[COLORS[c[2]]])
+	return fmt.Sprintf("%d %sohms", intVal, scale)
 }
