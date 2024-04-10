@@ -2,20 +2,25 @@ package wordsearch
 
 import (
 	"errors"
-	"fmt"
 	"slices"
 	"strings"
 )
 
 type predicate func([]string, string) ([2][2]int, error)
 
+var preds = []predicate{
+	leftToRight,
+	rightToLeft,
+	topToBottom,
+	bottomToTop,
+	topLeftToBottomRight,
+	bottomRightToTopLeft,
+	bottomLeftToTopRight,
+	topRightToBottomLeft,
+}
+
 func Solve(words []string, puzzle []string) (map[string][2][2]int, error) {
 	ret := make(map[string][2][2]int, 0)
-	preds := make([]predicate, 0)
-	preds = append(preds,
-		leftToRight, rightToLeft, topToBottom, bottomToTop,
-		topLeftToBottomRight, bottomRightToTopLeft, bottomLeftToTopRight,
-		topRightToBottomLeft)
 
 	for _, word := range words {
 		for _, pred := range preds {
@@ -65,15 +70,10 @@ func rightToLeft(puzzle []string, word string) ([2][2]int, error) {
 	for l, line := range puzzle {
 		if strings.Contains(line, reverse(word)) {
 			start, end := word[0], word[len(word)-1]
-			i := len(line) - 1
-			for {
-				if i < 0 {
-					break
-				}
+			for i := len(line) - 1; i >= 0; i-- {
 				if line[i] == start {
 					firstCharPosition = i
 				}
-
 				if line[i] == end {
 					lastCharPosition = i
 					if firstCharPosition != -1 {
@@ -81,7 +81,7 @@ func rightToLeft(puzzle []string, word string) ([2][2]int, error) {
 						break
 					}
 				}
-				i--
+
 			}
 		}
 	}
@@ -123,15 +123,10 @@ func bottomToTop(puzzle []string, word string) ([2][2]int, error) {
 	for l, line := range lines {
 		if strings.Contains(reverse(line), word) {
 			start, end := word[0], word[len(word)-1]
-			i := len(line) - 1
-			for {
-				if i < 0 {
-					break
-				}
+			for i := len(line) - 1; i >= 0; i-- {
 				if line[i] == start {
 					firstCharPosition = i
 				}
-
 				if line[i] == end {
 					lastCharPosition = i
 					if firstCharPosition != -1 {
@@ -139,7 +134,6 @@ func bottomToTop(puzzle []string, word string) ([2][2]int, error) {
 						break
 					}
 				}
-				i--
 			}
 		}
 	}
@@ -211,68 +205,47 @@ func traversePuzzle(puzzle []string) []string {
 
 func diagonalTraverseTopLeftBottomRight(puzzle []string, word string) (atColFirst int, atLineFirst int, atLineLast int, atColLast int) {
 	atColFirst, atLineFirst, atLineLast, atColLast = -1, -1, -1, -1
-	var c, l, d, w, firstInc, lastInc int
-	var debug bool = false
+	var column, line, diagonalIndex, wordIndex, firstInc, lastInc int
 	var finded strings.Builder
 	if len(puzzle) == len(puzzle[0]) {
-		c = 0
-		l = len(puzzle) - 1
-		d = l
+		column = 0
+		line = len(puzzle) - 1
+		diagonalIndex = line
 		firstInc = 2
 		lastInc = 1
-		/*
-			0.0 1.0 2.0 3.0 4.0 5.0 6.0 7.0 8.0 9.0
-			0.1 1.1 2.1 3.1 4.1 5.1 6.1 7.1 8.1 9.1
-			0.2 1.2 2.2 3.2 4.2 5.2 6.2 7.2 8.2 9.2
-			0.3 1.3 2.3 3.3 4.3 5.3 6.3 7.3 8.3 9.3
-			0.4 1.4 2.4 3.4 4.4 5.4 6.4 7.4 8.4 9.4
-			0.5 1.5 2.5 3.5 4.5 5.5 6.5 7.5 8.5 9.5
-			0.6 1.6 2.6 3.6 4.6 5.6 6.6 7.6 8.6 9.6
-			0.7 1.7 2.7 3.7 4.7 5.7 6.7 7.7 8.7 9.7
-			0.8 1.8 2.8 3.8 4.8 5.8 6.8 7.8 8.8 9.8
-			0.9 1.9 2.9 3.9 4.9 5.9 6.9 7.9 8.9 9.9
-		*/
 		for {
-			// time.Sleep(time.Second / 1000)
-			// println(fmt.Sprintf("(%d.%d) %s %s", c, d, finded.String(), word))
-
-			if puzzle[c][d] == word[w] {
-				finded.WriteByte(word[w])
-				if w == 0 {
-					atLineFirst, atColFirst = c, d
+			if puzzle[column][diagonalIndex] == word[wordIndex] {
+				finded.WriteByte(word[wordIndex])
+				if wordIndex == 0 {
+					atLineFirst, atColFirst = column, diagonalIndex
 				}
-
 				if strings.Contains(finded.String(), word) {
-					atLineLast, atColLast = c, d
-					if debug {
-						println(fmt.Sprintf("(%d.%d)(%d.%d) %s %s TLBR", atLineFirst, atColFirst, l, d, finded.String(), word))
-						debug = false
-					}
+					atLineLast, atColLast = column, diagonalIndex
 					finded.Reset()
 					return
 				}
-				w++
+				wordIndex++
 
 			}
-			if c == len(puzzle)-1 && d == 0 {
+			if column == len(puzzle)-1 && diagonalIndex == 0 {
 				break
 			}
-			if d == len(puzzle)-lastInc {
-				c = 0
-				d = len(puzzle) - firstInc
-				l = d
+			if diagonalIndex == len(puzzle)-lastInc {
+				column = 0
+				diagonalIndex = len(puzzle) - firstInc
+				line = diagonalIndex
 				finded.Reset()
-				w = 0
-				if d == 0 {
-					l = 0
-					c = c + lastInc - 1
+				wordIndex = 0
+				if diagonalIndex == 0 {
+					line = 0
+					column = column + lastInc - 1
 					lastInc++
 				} else {
 					firstInc++
 				}
 			} else {
-				c++
-				d++
+				column++
+				diagonalIndex++
 			}
 		}
 
@@ -282,65 +255,46 @@ func diagonalTraverseTopLeftBottomRight(puzzle []string, word string) (atColFirs
 
 func diagonalTraverseBottomRightToTopLeft(puzzle []string, word string) (atColFirst int, atLineFirst int, atColLast int, atLineLast int) {
 	atColFirst, atLineFirst, atLineFirst, atLineLast = -1, -1, -1, -1
-	var l, c, d, w, lastInc int
-	var debug bool = false
+	var line, column, diagonalIndex, wordIndex, lastInc int
 	var finded strings.Builder
 	if len(puzzle) == len(puzzle[0]) {
-		l = len(puzzle) - 1
-		d = 0
+		line = len(puzzle) - 1
+		diagonalIndex = 0
 		lastInc = 2
-		/*
-			0.0 1.0 2.0 3.0 4.0 5.0 6.0 7.0 8.0 9.0
-			0.1 1.1 2.1 3.1 4.1 5.1 6.1 7.1 8.1 9.1
-			0.2 1.2 2.2 3.2 4.2 5.2 6.2 7.2 8.2 9.2
-			0.3 1.3 2.3 3.3 4.3 5.3 6.3 7.3 8.3 9.3
-			0.4 1.4 2.4 3.4 4.4 5.4 6.4 7.4 8.4 9.4
-			0.5 1.5 2.5 3.5 4.5 5.5 6.5 7.5 8.5 9.5
-			0.6 1.6 2.6 3.6 4.6 5.6 6.6 7.6 8.6 9.6
-			0.7 1.7 2.7 3.7 4.7 5.7 6.7 7.7 8.7 9.7
-			0.8 1.8 2.8 3.8 4.8 5.8 6.8 7.8 8.8 9.8
-			0.9 1.9 2.9 3.9 4.9 5.9 6.9 7.9 8.9 9.9
-		*/
 
 		for {
-			//time.Sleep(time.Second / 10)
-			//println(fmt.Sprintf("(%d.%d)(%d.%d) %s %s", atLineFirst, atColFirst, d, l, finded.String(), word))
-			if puzzle[l][d] == word[w] {
-				finded.WriteByte(word[w])
-				if w == 0 {
-					atLineFirst, atColFirst = l, d
+			if puzzle[line][diagonalIndex] == word[wordIndex] {
+				finded.WriteByte(word[wordIndex])
+				if wordIndex == 0 {
+					atLineFirst, atColFirst = line, diagonalIndex
 				}
 
 				if strings.Contains(finded.String(), word) {
-					atLineLast, atColLast = l, d
-					if debug {
-						println(fmt.Sprintf("(%d.%d)(%d.%d) %s %s BRTL", atLineFirst, atColFirst, d, l, finded.String(), word))
-						debug = false
-					}
+					atLineLast, atColLast = line, diagonalIndex
 					finded.Reset()
 					return
 				}
-				w++
+				wordIndex++
 			}
 
-			if c == len(puzzle)-1 && d == 0 {
+			if column == len(puzzle)-1 && diagonalIndex == 0 {
 				break
 			}
 
-			if d == 0 {
-				if c < len(puzzle)-1 {
-					c++
-					l = len(puzzle) - 1
+			if diagonalIndex == 0 {
+				if column < len(puzzle)-1 {
+					column++
+					line = len(puzzle) - 1
 				} else {
-					l = len(puzzle) - lastInc
+					line = len(puzzle) - lastInc
 					lastInc++
 				}
 				finded.Reset()
-				w = 0
-				d = c
+				wordIndex = 0
+				diagonalIndex = column
 			} else {
-				l--
-				d--
+				line--
+				diagonalIndex--
 			}
 		}
 
@@ -350,54 +304,37 @@ func diagonalTraverseBottomRightToTopLeft(puzzle []string, word string) (atColFi
 
 func diagonalTraverseBottomLeftTopRight(puzzle []string, word string) (atColFirst int, atLineFirst int, atColLast int, atLineLast int) {
 	atColFirst, atLineFirst, atLineLast, atColLast = -1, -1, -1, -1
-	var c, l, w, firstInc int
-	var debug bool = false
+	var column, line, wordIndex, firstInc int
 	var finded strings.Builder
 	if len(puzzle) == len(puzzle[0]) {
 		puzzleLimit := len(puzzle) - 1
 		lastLimit := 0
 		firstInc = 1
-		/*
-			0.0 1.0 2.0 3.0 4.0 5.0 6.0 7.0 8.0 9.0
-			0.1 1.1 2.1 3.1 4.1 5.1 6.1 7.1 8.1 9.1
-			0.2 1.2 2.2 3.2 4.2 5.2 6.2 7.2 8.2 9.2
-			0.3 1.3 2.3 3.3 4.3 5.3 6.3 7.3 8.3 9.3
-			0.4 1.4 2.4 3.4 4.4 5.4 6.4 7.4 8.4 9.4
-			0.5 1.5 2.5 3.5 4.5 5.5 6.5 7.5 8.5 9.5
-			0.6 1.6 2.6 3.6 4.6 5.6 6.6 7.6 8.6 9.6
-			0.7 1.7 2.7 3.7 4.7 5.7 6.7 7.7 8.7 9.7
-			0.8 1.8 2.8 3.8 4.8 5.8 6.8 7.8 8.8 9.8
-			0.9 1.9 2.9 3.9 4.9 5.9 6.9 7.9 8.9 9.9
-		*/
 		for {
-			if c == puzzleLimit && l == puzzleLimit {
+			if column == puzzleLimit && line == puzzleLimit {
 				break
 			}
-			if puzzle[l][c] == word[w] {
-				finded.WriteByte(word[w])
+			if puzzle[line][column] == word[wordIndex] {
+				finded.WriteByte(word[wordIndex])
 
-				if w == 0 {
-					atColFirst, atLineFirst = c, l
+				if wordIndex == 0 {
+					atColFirst, atLineFirst = column, line
 				}
 
 				if strings.Contains(finded.String(), word) {
-					atLineLast, atColLast = l, c
-					if debug {
-						println(fmt.Sprintf("(%d.%d)(%d.%d) %s %s BLTR", atColFirst, atLineFirst, atColLast, atLineLast, finded.String(), word))
-						debug = false
-					}
+					atLineLast, atColLast = line, column
 					finded.Reset()
 					return
 				}
-				w++
+				wordIndex++
 			}
 
-			if l == lastLimit {
-				c = lastLimit
-				l = firstInc
-				if l > puzzleLimit {
-					l = puzzleLimit
-					c++
+			if line == lastLimit {
+				column = lastLimit
+				line = firstInc
+				if line > puzzleLimit {
+					line = puzzleLimit
+					column++
 				}
 				if firstInc <= puzzleLimit {
 					firstInc++
@@ -405,10 +342,10 @@ func diagonalTraverseBottomLeftTopRight(puzzle []string, word string) (atColFirs
 					lastLimit++
 				}
 				finded.Reset()
-				w = 0
+				wordIndex = 0
 			} else {
-				l--
-				c++
+				line--
+				column++
 			}
 		}
 
@@ -418,66 +355,47 @@ func diagonalTraverseBottomLeftTopRight(puzzle []string, word string) (atColFirs
 
 func diagonalTraverseTopRightBottomLeft(puzzle []string, word string) (atColFirst int, atLineFirst int, atColLast int, atLineLast int) {
 	atColFirst, atLineFirst, atLineLast, atColLast = -1, -1, -1, -1
-	var c, l, w, firstInc, lastInc int
-	var debug bool = false
+	var column, line, wordIndex, firstInc, lastInc int
 	var finded strings.Builder
 	if len(puzzle) == len(puzzle[0]) {
 		puzzleLimit := len(puzzle) - 1
 		firstInc = 1
 		lastInc = 0
-		l = puzzleLimit
-		c = puzzleLimit
-		/*
-			0.0 1.0 2.0 3.0 4.0 5.0 6.0 7.0 8.0 9.0
-			0.1 1.1 2.1 3.1 4.1 5.1 6.1 7.1 8.1 9.1
-			0.2 1.2 2.2 3.2 4.2 5.2 6.2 7.2 8.2 9.2
-			0.3 1.3 2.3 3.3 4.3 5.3 6.3 7.3 8.3 9.3
-			0.4 1.4 2.4 3.4 4.4 5.4 6.4 7.4 8.4 9.4
-			0.5 1.5 2.5 3.5 4.5 5.5 6.5 7.5 8.5 9.5
-			0.6 1.6 2.6 3.6 4.6 5.6 6.6 7.6 8.6 9.6
-			0.7 1.7 2.7 3.7 4.7 5.7 6.7 7.7 8.7 9.7
-			0.8 1.8 2.8 3.8 4.8 5.8 6.8 7.8 8.8 9.8
-			0.9 1.9 2.9 3.9 4.9 5.9 6.9 7.9 8.9 9.9
-		*/
+		line = puzzleLimit
+		column = puzzleLimit
 		for {
-			if c == 0 && l == 0 {
+			if column == 0 && line == 0 {
 				break
 			}
-			if puzzle[l][c] == word[0] {
-				atLineFirst, atColFirst = l, c
+			if puzzle[line][column] == word[0] {
+				atLineFirst, atColFirst = line, column
 			}
 
-			if puzzle[l][c] == word[w] {
-				finded.WriteByte(word[w])
-
+			if puzzle[line][column] == word[wordIndex] {
+				finded.WriteByte(word[wordIndex])
 				if strings.Contains(finded.String(), word) {
-					atLineLast, atColLast = l, c
-					//time.Sleep(time.Second / 3)
-					if debug {
-						println(fmt.Sprintf("(%d.%d)(%d.%d) %s %s TRBL", atColFirst, atLineFirst, atColLast, atLineLast, finded.String(), word))
-						debug = false
-					}
+					atLineLast, atColLast = line, column
 					finded.Reset()
 					return
 				}
-				w++
+				wordIndex++
 			}
 
-			if l == puzzleLimit-lastInc {
-				c = puzzleLimit - lastInc
-				l = puzzleLimit - firstInc
-				if l >= 0 {
+			if line == puzzleLimit-lastInc {
+				column = puzzleLimit - lastInc
+				line = puzzleLimit - firstInc
+				if line >= 0 {
 					firstInc++
 				} else {
 					lastInc++
-					c = puzzleLimit - lastInc
-					l = 0
+					column = puzzleLimit - lastInc
+					line = 0
 				}
 				finded.Reset()
-				w = 0
+				wordIndex = 0
 			} else {
-				c--
-				l++
+				column--
+				line++
 			}
 		}
 
