@@ -27,6 +27,7 @@ func Solve(words []string, puzzle []string) (map[string][2][2]int, error) {
 			if response, err := pred(puzzle, word); err == nil {
 				if _, exists := ret[word]; !exists {
 					ret[word] = response
+					break
 				}
 			}
 		}
