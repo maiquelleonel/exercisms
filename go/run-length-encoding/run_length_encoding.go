@@ -34,7 +34,7 @@ func RunLengthEncode(input string) string {
 
 func RunLengthDecode(input string) string {
 	var result, letter, num string
-	re := regexp.MustCompile(`(\d{1,2}\w{1}|\d?\s)|(\w)`)
+	re := regexp.MustCompile(`(\d{1,2}\w{1})|(\d?\s)|(\w)`)
 	ret := re.FindAllString(input, -1)
 	for _, data := range ret {
 		if len(data) == 1 {
